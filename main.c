@@ -7,9 +7,13 @@ int contador = 0; // Variavel criada para poder percorrer os indices do Vetor
 const int MAX = 100; // Constante declarada para gerar os valores randomicos
 
 // Protótipo para funcoes
-int *inversao(int tamanho, int *vetor);
-void file_to_array(int *vetor, int tamanho);
+int *inversao(int tamanho, int vetor[]);
+int *ordenacao(int tamanho, int vetor[]);
+int *arquivo_para_array(int vetor[], int tamanho);
+
 void gera_arquivo(int tamanho);
+void arquivo_invertido(int vetor[], int tamanho);
+void arquivo_ordenado(int vetor[], int tamanho);
 
 
 int main(void)
@@ -23,19 +27,20 @@ int main(void)
 
     gera_arquivo(quantidade);
 
-    int numeros[quantidade];
-
-    file_to_array(numeros, quantidade);
-
-    for(int i = 0; i<quantidade; i++)
-    {
-        printf("%i\n", numeros[i]);
-    }
+    int *numeros = arquivo_para_array(numeros, quantidade);
     
+    arquivo_invertido(numeros, quantidade);
+
+    arquivo_ordenado(numeros, quantidade);
+
 }
 
-// Funcao de inversao dos valores
-int *inversao(int tamanho, int *vetor)
+/* * * * * *  
+ *         *
+ * FUNCOES *
+ *         *
+ * * * * * */
+int *inversao(int tamanho, int vetor[])
 {
 
     if(tamanho <= contador)
@@ -58,7 +63,22 @@ int *inversao(int tamanho, int *vetor)
     }
 }
 
-// int *numeros_invertidos = inversao(quantidade, numeros);
+int *ordenacao(int tamanho, int vetor[])
+{
+    for(int i=0; i<tamanho; i++)
+    {
+       for(int j=i; j<tamanho; j++)
+       {
+           if(vetor[i] > vetor[j])
+           {
+               int aux = vetor[i];
+               vetor[i] = vetor[j];
+               vetor[j] = aux;
+           }
+       }
+    }
+    return vetor;
+}
 
 void gera_arquivo(int tamanho)
 {
@@ -82,12 +102,12 @@ void gera_arquivo(int tamanho)
     fclose(fptr);
 }
 
-void file_to_array(int *vetor, int tamanho)
+int *arquivo_para_array(int vetor[], int tamanho)
 {
     FILE *fptr;
     char *numeros_string, *stop = ";";
 
-    numeros_string = (char *)malloc(tamanho * (sizeof(char))); // alocação dinâmica do espaço
+    numeros_string = (char *)malloc(tamanho * (sizeof(int))); // alocação dinâmica do espaço
 
     fptr = fopen("./numeros.csv", "r");
 
@@ -110,4 +130,47 @@ void file_to_array(int *vetor, int tamanho)
     }
 
     free(numeros_string);
+
+    return vetor;
+}
+
+void arquivo_invertido(int vetor[], int tamanho)
+{
+    FILE *fptr;
+    int *numeros_inverso = inversao(tamanho, vetor);
+    fptr = fopen("./numeros_inverso.csv", "w");
+
+    // Testa a abertura do arquivo
+    if(fptr == NULL)
+    {
+        printf("Erro para abrir o arquivo!!");
+        exit(1);
+    }
+
+    for(int i=0; i<tamanho; i++)
+    {
+        fprintf(fptr, "%i;", numeros_inverso[i]);
+    }
+    fclose(fptr);
+}
+
+void arquivo_ordenado(int vetor[], int tamanho)
+{
+    FILE *fptr;
+    int *numeros_ordenados = ordenacao(tamanho, vetor);
+    fptr = fopen("./numeros_ordenados.csv", "w");
+
+    // Testa a abertura do arquivo
+    if(fptr == NULL)
+    {
+        printf("Erro para abrir o arquivo!!");
+        exit(1);
+    }
+
+    for(int i=0; i<tamanho; i++)
+    {
+        fprintf(fptr, "%i;", numeros_ordenados[i]);
+    }
+    fclose(fptr);
+
 }

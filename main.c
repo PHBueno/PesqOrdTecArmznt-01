@@ -5,6 +5,7 @@
 
 int contador = 0; // Variavel criada para poder percorrer os indices do Vetor
 const int MAX = 100; // Constante declarada para gerar os valores randomicos
+const int QNT_ARRAY = 100; // Constante declarada para a quantidade mínima de indices no array
 
 // Protótipo para funcoes
 int *inversao(int tamanho, int vetor[]);
@@ -17,28 +18,65 @@ void arquivo_invertido(int vetor[], int tamanho);
 void arquivo_ordenado(int vetor[], int tamanho);
 void arquivo_maiorMenor_media(int vetor[], int tamanho);
 void arquivo_binario(int vetor[], int tamanho);
-
+void menu();
 
 int main(void)
 {
     srand(time(0));
 
-    int quantidade;
-   
-    printf("Informe a quantidade de valores para armazenar no vetor: ");
-    scanf("%i", &quantidade);
+    int quantidade, opcao, *numeros;
 
-    gera_arquivo(quantidade);
+    do
+    {
+        menu();
+        printf("Informe sua opção: ");
+        scanf("%d", &opcao);
 
-    int *numeros = arquivo_para_array(numeros, quantidade);
+        switch (opcao)
+        {
+        case 1: // Gerar Arquivo
+        {
+            printf("Informe a quantidade de valores para armazenar (MÍNIMO 100): ");
+            scanf("%i", &quantidade);
 
-     arquivo_binario(numeros, quantidade);
-    
-    arquivo_invertido(numeros, quantidade);
+            if(quantidade < QNT_ARRAY){quantidade = QNT_ARRAY;} // Se o valor informado for menor que o mínimo, atribui o minimo na quantidade
 
-    arquivo_ordenado(numeros, quantidade);
+            gera_arquivo(quantidade);
+            numeros = arquivo_para_array(numeros, quantidade);
+            break;
+        }
+        case 2: // Gerar arquivo com os valores em binário
+        {
+            arquivo_binario(numeros, quantidade);
+            break;
+        }
+        case 3: // Gerar arquivo com os valores invertidos
+        {
+            arquivo_invertido(numeros, quantidade);
+            break;
+        }
+        case 4: // Gerar arquivo com maior, menor e a média dos valores
+        {
+            arquivo_maiorMenor_media(numeros, quantidade);
+            break;
+        }
+        case 5: // Gerar arquivo com os valores ordenados
+        {
+            arquivo_ordenado(numeros, quantidade);
+            break;
+        }
+        case 6: // Sair
+        {
+            printf("\n\nAté mais!! :)\n\n");
+            break;
+        }
+        
+        default:
+            printf("\n\nOpção inválida, tente novamente!\n\n");
+            break;
+        }
 
-    arquivo_maiorMenor_media(numeros, quantidade);
+    } while (opcao != 6);
 }
 
 
@@ -74,15 +112,18 @@ int *inversao(int tamanho, int vetor[])
 
 int *ordenacao(int tamanho, int vetor[])
 {
+    // O loop de fora sempre vai estar um passo atrás do for aninhado
     for(int i=0; i<tamanho; i++)
     {
-       for(int j=i; j<tamanho; j++)
+       // O loop de dentro eh utilizado para compara todos os valores com o valor para índice do loop de fora
+      for(int j=i; j<tamanho; j++)
        {
+           // Verifica se o valor do loop de fora é maior que o restante dos valores do array
            if(vetor[i] > vetor[j])
            {
-               int aux = vetor[i];
-               vetor[i] = vetor[j];
-               vetor[j] = aux;
+               int auxiliar = vetor[i]; // Se for maior, precisamos de uma variável auxiliar para armazenar o maior valor e mandar ele para o lugar o número menor
+               vetor[i] = vetor[j]; // Então, o menor valor vai entrar no lugar no valor maior
+               vetor[j] = auxiliar; // A posição do valor menor vai ser substituida pelo maior valor
            }
        }
     }
@@ -131,6 +172,8 @@ void gera_arquivo(int tamanho)
     }
 
     fclose(fptr);
+
+    printf("\n\nArquivo gerado com sucesso!!\n\n");
 }
 
 int *arquivo_para_array(int vetor[], int tamanho)
@@ -185,6 +228,7 @@ void arquivo_invertido(int vetor[], int tamanho)
         fprintf(fptr, "%i;", numeros_inverso[i]);
     }
     fclose(fptr);
+    printf("\n\nArquivo inverso gerado com sucesso!!\n\n");
 }
 
 void arquivo_ordenado(int vetor[], int tamanho)
@@ -207,6 +251,8 @@ void arquivo_ordenado(int vetor[], int tamanho)
     }
     fclose(fptr);
 
+    printf("\n\nArquivo ordenado gerado com sucesso\n\n");
+
 }
 
 void arquivo_maiorMenor_media(int vetor[], int tamanho)
@@ -216,6 +262,12 @@ void arquivo_maiorMenor_media(int vetor[], int tamanho)
     float media;
 
     fptr = fopen("numeros_maiorMenor_media.csv", "w");
+
+    if(fptr == NULL)
+    {
+        printf("Erro para abrir o arquivo!!");
+        exit(1);
+    }
 
     for(int i = 0; i<tamanho; i++)
     {
@@ -233,6 +285,8 @@ void arquivo_maiorMenor_media(int vetor[], int tamanho)
     fprintf(fptr, "Maior;Menor;Media\n%i;%i;%.2f\n", maior, menor, (media/tamanho));
 
     fclose(fptr);
+
+    printf("\n\nArquivo com: Maior, Menor e Médida Gerado com sucesso\n\n");
 }
 
 void arquivo_binario(int vetor[], int tamanho)
@@ -241,8 +295,23 @@ void arquivo_binario(int vetor[], int tamanho)
 
     fptr = fopen("numeros_binarios.csv", "w");
 
+    if(fptr == NULL)
+    {
+        printf("Erro para abrir o arquivo!!");
+        exit(1);
+    }
+
     for(int i=0; i< tamanho; i++)
     {
         fprintf(fptr, "%i;", binario(vetor[i]));
     }
+    fclose(fptr);
+    printf("\n\n!!Arquivo Binário Gerado com sucesso!!\n\n");
+}
+
+void menu()
+{
+    printf("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
+    printf("1 - Gerar arquivo \n2 - Converter para Binário\n3 - Inverter Ordem\n4 - Achar Maior e Menor valor\n5 - Ordenar Sequencia\n6 - Sair");
+    printf("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
 }
